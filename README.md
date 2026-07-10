@@ -25,11 +25,12 @@ labelling does just as well.
 Annotated source, prose beside code (rebuilt by `make doc`;
 each page's 🏠 badge returns here):
 
-- [tiny-xai](https://aiez.github.io/tiny-xai/tiny-xai.html) -
-  the engine: columns, distances, landscape sampling, trees,
-  stats
-- [dtlz](https://aiez.github.io/tiny-xai/dtlz.html) - plug an
-  external model into the `*label*` hook (DTLZ1-7 demo)
+- [tiny-xai](https://aiez.github.io/tiny-xai/docs/tiny-xai.html)
+  - the engine: columns, distances, landscape sampling,
+  trees, stats
+- [dtlz](https://aiez.github.io/tiny-xai/docs/dtlz.html) -
+  plug an external model into the `*label*` hook (DTLZ1-7
+  demo)
 - [REPORT.md](https://github.com/aiez/tiny-xai/blob/main/REPORT.md) -
   the RQ0-RQ2 study: how good, how fast, how simple
 

@@ -1,5 +1,5 @@
 <p align="center">
-<a href="https://github.com/aiez/tiny-xai#readme"><img
+<a href="https://aiez.github.io/tiny-xai/"><img
    alt="home" src="https://img.shields.io/badge/🏠-home-gold"></a>
 <img alt="language" src="https://img.shields.io/badge/language-common%20lisp-9558B2">
 <img alt="runs on" src="https://img.shields.io/badge/runs%20on-sbcl%20|%20clisp-EE4C2C">
