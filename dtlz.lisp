@@ -13,9 +13,12 @@
 (in-package :tiny-xai)
 
 ;;; ## The models
-;;; Each maps x in [0,1]^N to M objectives to MINIMIZE.
-;;; The last N-M+1 x's form the "distance" group xm; the
-;;; rest shape the front.
+;;;  ._ _    _    _|   _   |   _
+;;;  | | |  (_)  (_|  (/_  |  _>
+
+;;;; Each maps x in [0,1]^N to M objectives to MINIMIZE.
+;;;; The last N-M+1 x's form the "distance" group xm; the
+;;;; rest shape the front.
 
 (defun g1 (xm)
   "Multi-modal distance: many local optima"
@@ -100,6 +103,9 @@
 (defvar *models* '(dtlz1 dtlz2 dtlz3 dtlz4 dtlz5 dtlz6 dtlz7))
 
 ;;; ## The pool and the label seam
+;;;  ._    _    _   |
+;;;  |_)  (_)  (_)  |
+;;;  |
 
 (defun opt (flag default)
   "Value after `flag` on the command line, else default"
@@ -137,6 +143,8 @@
           "100=best 0=median"))
 
 ;;; ## Drive one model
+;;;   _|  ._  o       _
+;;;  (_|  |   |  \/  (/_
 
 (defun names (nn mm)
   "Header: X1..Xn decision vars, F1-..Fm- minimize goals"
