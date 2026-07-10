@@ -1,0 +1,4 @@
+#!/bin/sh
+# emacs with only the tiny-xai init (skips ~/.emacs.d).
+# usage: etc/ide [file ...]
+exec emacs -q -l "$(cd "$(dirname "$0")" && pwd)/init.lisp" "$@"

@@ -1,0 +1,15 @@
+<p align="center">
+<img alt="language" src="https://img.shields.io/badge/language-common%20lisp-9558B2">
+<img alt="runs on" src="https://img.shields.io/badge/runs%20on-sbcl%20|%20clisp-EE4C2C">
+<img alt="purpose" src="https://img.shields.io/badge/purpose-xai,%20optimization-3EA99F">
+<a href="https://github.com/aiez/tiny-xai/blob/main/LICENSE.md"><img
+   alt="license" src="https://img.shields.io/badge/license-MIT-brightgreen"></a>
+<a href="https://timm.fyi"><img
+   alt="author" src="https://img.shields.io/badge/author-timm-blueviolet"></a>
+<a href="https://github.com/aiez/tiny-xai"><img
+   alt="download" src="https://img.shields.io/badge/download-github-black"></a>
+<a href="https://github.com/aiez/tiny-xai/blob/main/REPORT.md"><img
+   alt="report" src="https://img.shields.io/badge/results-129%20datasets-blue"></a>
+<a href="https://github.com/aiez/tiny-xai/actions/workflows/tests.yml"><img
+   alt="tests" src="https://github.com/aiez/tiny-xai/actions/workflows/tests.yml/badge.svg"></a>
+</p>

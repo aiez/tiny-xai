@@ -1,0 +1,22 @@
+name: tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  units:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: tiny-xai
+      - uses: actions/checkout@v4
+        with:
+          repository: aiez/optimiz
+          path: optimiz
+      - name: install sbcl
+        run: sudo apt-get update -q && sudo apt-get install -y sbcl
+      - name: unit tests
+        working-directory: tiny-xai
+        run: sbcl --script tiny-xai.lisp --all
