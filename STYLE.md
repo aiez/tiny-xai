@@ -58,7 +58,7 @@ portability gate. Code stays portable to both.
   line (`~&...`) BEFORE asserting; study docstrings
   start `Rq0:`/`Rq1:`/`Rq2:`; big inputs get capped
   first via `few` and `--cap`.
-- Reference implementation: `../../ezr2/ezr2.py`. Prefer
+- Reference implementation: `../ezr2/ezr2.py`. Prefer
   its shapes; no `--bins`-style approximations for
   numeric cuts; pinned asserts make every refactor a
   provable no-op.
@@ -119,6 +119,11 @@ The website (`docs/*.html`) is GENERATED. Never edit it.
 6. **README.md** is the github landing page AND the asd's
    `:long-description` (read at asd load). Usage examples
    there must match the real flags (`-h` is the truth).
+   It is ALSO the website's landing page: GitHub Pages
+   serves the repo ROOT of main (not docs/), so live urls
+   are `.../tiny-xai/docs/NAME.html` and the bare
+   `.../tiny-xai/` renders README. The README Documentation
+   toc and header.txt's home badge must keep those paths.
 7. **REPORT.md** numbers come from `make holdouts`,
    `make budgets`, `make deltas`. If the algorithm
    changes, rerun the lanes and refresh the histograms;
