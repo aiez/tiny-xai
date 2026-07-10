@@ -49,10 +49,12 @@
   "Csv reader: row shapes and count"
   (mapcsv (lambda (row)
             (when (< (incf n) 4) (print row))
-            (assert (= (length row) 8)))
+            (when (search "auto93" (? *my* --file))
+              (assert (= (length row) 8))))
           (? *my* --file))
   (format t "~&rows ~a~%" n)
-  (assert (= n 399)))
+  (when (search "auto93" (? *my* --file))
+    (assert (= n 399))))
 
 (defun eg--data (&aux (i (make-data (? *my* --file))))
   "Data build: col roles and goal stats"

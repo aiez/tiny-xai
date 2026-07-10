@@ -19,6 +19,32 @@ portability gate. Code stays portable to both.
   macro = `(ats i 'slot)`; `?` macro for nested access;
   `add` returns the value added (chainable); num/sym
   summaries dispatch via CLOS, never type-ifs.
+- **`$` hard-codes `i`.** Any function or method using
+  `$n`, `$mu`, ... MUST bind its primary object to `i`
+  (`(defmethod add ((i num) v) ...)`; tests use
+  `&aux (i (make-data ...))`).
+- **Settings slots ARE the CLI flags.** `settings` uses
+  `(:conc-name)` and `--seed`-style slot names; `cli`
+  string-matches argv against slot names and `-h` prints
+  them as OPTIONS. Rename a slot = rename a flag; a slot
+  nothing reads is a lie in the help text.
+- Structs needing smart construction hide the default
+  constructor as `%make-foo` and hand-write a public
+  `make-foo` (see cols, data).
+- Numeric guards: `(+ denom +tiny+)` blocks
+  divide-by-zero; `+big+` / `(- +big+)` seed min/max
+  scans.
+- Randomness is a hand-rolled Lehmer `rand`/`rint` plus
+  a seeded `shuffle` over `*seed*`; never CL `random`.
+  Reset `(setf *seed* (? *my* --seed))` before every
+  test, study, or model run so runs reproduce.
+- Portability rides on `#+sbcl` / `#+clisp` reader
+  conditionals (slot listing, argv, warning muffling).
+- Header roles: trailing `-`, `+`, `!` mark goals (`-`
+  sets weight 0, others 1), trailing `X` = ignore,
+  leading uppercase = numeric.
+- Every file opens with a one-line vim modeline;
+  Makefile targets carry trailing `## help` comments.
 - lisp-lang.org style guide: earmuffs on specials
   (`*my*`, `*seed*`, `*label*`); `-p` predicates
   (`grow-p`, `has-p`); `+tiny+`/`+big+` constants;
@@ -28,7 +54,10 @@ portability gate. Code stays portable to both.
 - Tests: `eg--*` = unit tests (`--all`); `study--*` =
   experiment sweeps (`--study` or per flag). Every test
   asserts; dataset-specific numbers gate on
-  `(search "auto93" ...)`.
+  `(search "auto93" ...)`. Tests print a diagnostic
+  line (`~&...`) BEFORE asserting; study docstrings
+  start `Rq0:`/`Rq1:`/`Rq2:`; big inputs get capped
+  first via `few` and `--cap`.
 - Reference implementation: `../../ezr2/ezr2.py`. Prefer
   its shapes; no `--bins`-style approximations for
   numeric cuts; pinned asserts make every refactor a
@@ -58,7 +87,7 @@ The website (`docs/*.html`) is GENERATED. Never edit it.
 
 1. **Docstrings** in src/, t/ and dtlz.lisp. Every defun,
    defmethod and defmacro has a one-line docstring,
-   **first letter capitalized**. These are load-bearing
+   **first letter capitalized, no trailing period**. These are load-bearing
    three ways: (a) `etc/doc.awk` lifts each one above its
    definition as a comment, so pycco renders it as prose
    beside the code; (b) `help` (-h) prints them as the

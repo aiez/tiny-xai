@@ -2,12 +2,13 @@
 
 **tl;dr** How good? With ~50 labels the rig closes 85% of
 the gap to the best row on the median dataset (RQ0). How
-fast? 50 labels beat 20 on 57% of datasets, budgets past
-~40 are unspendable, and a full 20-repeat study of one
+fast? 50 labels beat 20 on 67% of datasets, budgets past
+~50 are unspendable, and a full 20-repeat study of one
 dataset costs about a quarter of a CPU second (RQ1). How
-simple? Random labelling ties active 67% of the time and
-the rest splits almost evenly - on this corpus, at this
-budget, clever labelling buys nothing reliable (RQ2).
+simple? Random labelling ties active on 60% of datasets,
+but where they differ active wins 2.4:1 - and that edge
+lives in one bookkeeping detail: projection anchors must
+be labels still in the pool (RQ2).
 
 ## Why active learning?
 
@@ -21,14 +22,16 @@ label next, spending the budget where it expects to learn
 the most.
 
 The active method here is a landscape sampler in the
-FASTMAP family: project unlabelled rows onto the line
-joining the two most distant labelled points (found via the
-x-distance `distx`), orient that line by the labelled y
-values so one pole is "good", then cull the third of the
-pool projecting nearest the bad pole. Label a few more,
-re-project, cull again - the pool shrinks geometrically
-toward the good region, and only labelled rows are ever
-scored. Random sampling is the control.
+FASTMAP family: project the pool onto the line joining
+the two most distant labelled rows *still in the pool*
+(found via the x-distance `distx`), orient that line by
+the labelled y values so one pole is "good", then cull
+the third of the pool projecting nearest the bad pole -
+labelled rows included, and a culled label stops
+anchoring. Label a few more survivors, re-project, cull
+again: the pool shrinks geometrically toward the good
+region, and only labelled rows are ever scored. Random
+sampling is the control.
 
 ## Method
 
@@ -89,23 +92,23 @@ row, negative = worse than median.
 129 datasets (one `*` = 3 datasets):
 
 ```
-[  0, 10)    0%
-[ 10, 20)    2%  *
-[ 20, 30)    2%  *
-[ 30, 40)    2%  *
-[ 40, 50)    6%  ***
-[ 50, 60)    4%  **
-[ 60, 70)   17%  ********
-[ 70, 80)    9%  ****
+[  0, 10)    1%  *
+[ 10, 20)    1%  *
+[ 20, 30)    0%
+[ 30, 40)    4%  **
+[ 40, 50)    5%  ***
+[ 50, 60)    5%  **
+[ 60, 70)   16%  *******
+[ 70, 80)   12%  *****
 [ 80, 90)   18%  ********
 [ 90,100]   40%  *****************
 ```
 
-Quartiles: min 16, q1 66, median 85, q3 96, max 100.
+Quartiles: min 4, q1 65, median 85, q3 96, max 100.
 
 **Answer:** good. With only ~45 labels plus 5 checked test
 rows, the median dataset closes 85% of the gap between its
-median and best row; 39% of datasets close 90% or more.
+median and best row; 40% of datasets close 90% or more.
 No dataset scores below zero (never worse than guessing).
 The stragglers (two datasets under 20) are rugged or noisy
 landscapes worth separate study.
@@ -124,29 +127,29 @@ solution looking for a problem.
 20 repeats, 129 datasets (one `*` = 3 datasets):
 
 ```
-[-15,-10)    1%  *
-[-10, -5)    2%  *
+[-15,-10)    0%
+[-10, -5)    0%
 [ -5,  0)    2%  *
-   ties=0   39%  *****************
-[  0,  5)   12%  ******
-[  5, 10)   18%  ********
-[ 10, 15)   11%  *****
-[ 15, 20)   10%  *****
-[ 20, 25)    5%  **
+   ties=0   31%  **************
+[  0,  5)   20%  *********
+[  5, 10)   13%  ******
+[ 10, 15)   15%  *******
+[ 15, 20)   11%  *****
+[ 20, 25)    8%  ****
 [ 25, 30)    1%  *
 ```
 
-Budget 50 beats budget 20 on 73/129 datasets (57%), by up
-to +29 wins; it loses on 6 (worst -11). Labels buy real
+Budget 50 beats budget 20 on 87/129 datasets (67%), by up
+to +28 wins; it loses on 2 (worst -2.7). Labels buy real
 performance - the problem is not trivial.
 
 One caveat found while testing the other direction: budget
-200 vs 50 ties on 129/129 datasets - *bitwise* identically,
-not just statistically. The culling loop (`keepf 0.66`,
-stop when pool < 2x leaf) self-terminates after ~40 labels,
-so any budget >= 50 is never spent. The interesting budget
-range for this sampler is 10-50; beyond that, extra budget
-is unreachable by construction.
+200 vs 50 ties on 129/129 datasets. The culling loop
+(`keepf 0.66`, stop when pool < 2x leaf) self-terminates
+after ~48 labels on a 1000-row pool, so budgets past ~50
+are never spent. The interesting budget range for this
+sampler is 10-50; beyond that, extra budget is unreachable
+by construction.
 
 ### Runtime
 
@@ -170,54 +173,55 @@ optimization, so runtime never limits the study design.
 129 datasets:
 
 ```
-[-15,-10)    3%  **
-[-10, -5)    4%  **
-[ -5,  0)    8%  ****
-   ties=0   67%  *****************************
-[  0,  5)    9%  ****
-[  5, 10)    5%  **
-[ 10, 15)    4%  **
-[ 15, 20)    1%  *
-[ 20, 25)    0%
+[-15,-10)    1%  *
+[-10, -5)    5%  **
+[ -5,  0)    6%  ***
+   ties=0   60%  **************************
+[  0,  5)   17%  ********
+[  5, 10)    4%  **
+[ 10, 15)    6%  ***
+[ 15, 20)    0%
+[ 20, 25)    1%  *
 [ 25, 30)    0%
 ```
 
-**Answer:** yes. Active and random tie on 67% of datasets,
-and the remainder splits almost evenly (23 active, 19
-random) with symmetric tails (+16.8 vs -16.4). An earlier
-implementation of the active sampler showed a 2.4x win
-rate for active; two reimplementations of the same design
-both erased that edge, suggesting it was an implementation
-accident, not the method. At this budget, on this corpus,
-random labelling is as good as the FASTMAP-style sampler -
-and far simpler.
+**Answer:** mostly, but the edge is real. Active and
+random tie on 60% of datasets; the remainder splits 36
+active to 15 random (2.4:1), with a longer active tail
+(+21.7 vs -10.2). An earlier draft of this report found
+a dead-even split (23-19, symmetric tails) and concluded
+clever labelling buys nothing; see the aside below for
+what changed. At this budget random remains a strong,
+far simpler baseline - but the FASTMAP-style sampler now
+wins where it matters and rarely loses big.
 
 ## Aside: which projection anchors?
 
-A port ambiguity became an experiment. ezr2 projects the
-pool onto poles chosen from labels *still in the pool*
-(culled labels stop anchoring); an earlier lisp rewrite
-anchored on *all* labels (a culled bad-pole label keeps
-orienting the line). Which matters? Per dataset, 20 paired
-repeats each way (`--anchor`; delta = pool minus all):
+A port ambiguity became an experiment - twice. ezr2
+projects the pool onto poles chosen from labels *still in
+the pool* (culled labels stop anchoring; labelled rows
+stay in the pool and can themselves be culled); an
+earlier lisp rewrite popped each labelled row *out* of
+the pool and anchored on *all* labels, so a culled
+bad-pole label kept orienting the line forever.
 
-```
-[-15,-10)    3%  **
-[-10, -5)    3%  **
-[ -5,  0)    6%  ***
-   ties=0   73%  ********************************
-[  0,  5)    9%  ****
-[  5, 10)    5%  **
-[ 10, 15)    1%  *
-[ 15, 20)    1%  *
-```
+A first study toggled only the anchor list and found 73%
+ties, so the code kept the simpler all-labels policy,
+noting the divergence from ezr2. That was the wrong cut:
+grading the DTLZ demo (`dtlz.lisp`, its `win` column)
+then showed active barely beating random labelling on
+smooth synthetic landscapes (dtlz2 mean win 64 vs 72).
+Restoring the *full* ezr2 bookkeeping - labelled rows
+stay in the pool, new labels come from the pool walk,
+and only in-pool labels anchor - lifted dtlz2 to 76 and,
+on the 129-csv corpus, flipped RQ2 from a dead heat
+(23-19) to 36-15 in active's favor. The "2.4x active
+edge" an earlier implementation reported, which two
+rewrites then erased, was this bookkeeping all along.
 
-73% ties; the remainder split 19-16 with both tails near
-+/-15. Neither policy dominates; anchor lists never exceed
-~45 rows so neither is faster. Since the result is a tie,
-the code keeps the *simpler* policy (all labels anchor;
-no survivor bookkeeping), noting the divergence from ezr2
-here.
+Moral: in FASTMAP-style samplers the anchor list is not
+a detail. Culled labels must stop steering, or the line
+keeps pointing at regions the cull already rejected.
 
 ## Threats to validity
 

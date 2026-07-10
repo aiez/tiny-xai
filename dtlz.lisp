@@ -126,13 +126,15 @@
           (add (col-at data at) v))))
     row))
 
-(defun instance (data row nn)
-  "Print one row: decision vars, objectives, disty"
+(defun instance (data row nn win)
+  "Print one row: decision vars, objectives, disty, win"
   (format t "  x ~{ ~5,2f~}~%" (coerce (subseq row 0 nn)
                                        'list))
-  (format t "  f ~{ ~6,3f~}   (disty ~,3f, lower=better)~%"
+  (format t "  f ~{ ~6,3f~}   (disty ~,3f, win ~a; ~a)~%"
           (coerce (subseq row nn) 'list)
-          (disty data row)))
+          (disty data row)
+          (round (funcall win row))
+          "100=best 0=median"))
 
 ;;; ## Drive one model
 
@@ -144,33 +146,43 @@
                         collect (format nil "F~a-" i)))
           'vector))
 
+(defun oracle (model nn mm)
+  "Wins grader from a fresh, fully labelled pool"
+  (setf *seed* (? *my* --seed))
+  (let* ((data (make-data (cons (names nn mm)
+                                (fresh-pool 1000 nn mm))))
+         (*label* (labeller data model nn mm)))
+    (mapc *label* (? data rows))
+    (wins data)))
+
 (defun run-model (name nn mm &aux (model (symbol-function
                                            name)))
   "Landscape + tree + holdout, goals computed on demand"
   (format t "~&~%model ~(~a~)   N=~a x-vars   M=~a goals~%"
           name nn mm)
-  (setf *seed* (? *my* --seed))
-  (let* ((data (make-data (cons (names nn mm)
-                                (fresh-pool 1000 nn mm))))
-         (*label* (labeller data model nn mm))
-         (got (landscape data)))
-    (format t "~&best option found (one instance):~%")
-    (instance data (first got) nn)
-    (format t "~&why? which x-ranges reach good goals:~%")
-    (show data (tree data got
-                     (lambda (r) (disty data r))))
+  (let ((win (oracle model nn mm)))
     (setf *seed* (? *my* --seed))
     (let* ((data (make-data (cons (names nn mm)
                                   (fresh-pool 1000 nn mm))))
-           (*label* (labeller data model nn mm)))
-      (format t "~&does it generalize? best on unseen data:~%")
-      (instance data (holdout data) nn))))
+           (*label* (labeller data model nn mm))
+           (got (landscape data)))
+      (format t "~&best option found (one instance):~%")
+      (instance data (first got) nn win)
+      (format t "~&why? which x-ranges reach good goals:~%")
+      (show data (tree data got
+                       (lambda (r) (disty data r))))
+      (setf *seed* (? *my* --seed))
+      (let* ((data (make-data (cons (names nn mm)
+                                    (fresh-pool 1000 nn mm))))
+             (*label* (labeller data model nn mm)))
+        (format t "~&does it generalize? best on unseen data:~%")
+        (instance data (holdout data) nn win)))))
 
 (eval-when (:execute)
   (let ((name (opt "--model" "dtlz2"))
         (nn   (opt "--N" 6))
         (mm   (opt "--M" 2)))
-    (setf (? *my* --budget) 50)
+    (setf (? *my* --budget) 100)
     (dolist (m (if (equal name "all")
                    *models*
                    (list (intern (string-upcase name)

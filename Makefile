@@ -1,21 +1,41 @@
 # vim: ts=2 sw=2 sts=2 et :
-# knobs only; shared targets live in $(KONFIG)/Makefile
-ROOT   := $(dir $(lastword $(MAKEFILE_LIST)))
-KONFIG ?= $(ROOT)../konfig
+# standalone; help/doctor/push adapted from aiez/konfig
+SHELL := /bin/bash
+.DEFAULT_GOAL := help
 
-APP   := tiny-xai
-MAIN  := tiny-xai.lisp
-EXT   := lisp
-LANG  := clisp        # a2ps has clisp.ssh, no 'lisp.ssh'
-TOOLS := sbcl:run-lisp
-PKG   := sbcl gawk figlet neovim tmux
+DATA ?= ../optimiz # csv corpus (git clone github.com/aiez/optimiz)
 
-$(KONFIG)/Makefile:
-	@test -f $@ || { echo "missing konfig: git clone https://github.com/aiez/konfig $(KONFIG)"; exit 1; }
-include $(KONFIG)/Makefile
+help: ## show this help
+	@cat banner.txt 2>/dev/null || true
+	@printf "\nUsage:\n  make <target> [VAR=val ...]\n\ntargets:\n"
+	@grep -hE '^[a-zA-Z][a-zA-Z0-9_ /.-]*:.*## ' $(MAKEFILE_LIST) | sort | \
+	  awk -F':.*## ' '{printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2}'
+	@printf "\ndefaults:\n"
+	@grep -hE '^[A-Z]+ \?=' $(MAKEFILE_LIST) | \
+	  awk -F' \\?= |# ' '{printf "  \033[36m%s\033[0m = %-12s %s\n", $$1, $$2, $$3}'
+	@echo " "
 
-# ---- repo-specific lanes (after the include) ----------------
-DATA ?= ../optimiz
+doctor: ## check required tools
+	@for e in sbcl:tests clisp:portability awk:doc figlet:banners \
+	          pycco:doc python3:doc xargs:lanes; do \
+	   c=$${e%%:*}; use=$${e##*:}; \
+	   if command -v $$c >/dev/null; then \
+	     printf "  \033[32mok\033[0m %-8s used by: %s\n" "$$c" "$$use"; \
+	   else \
+	     printf "  \033[31mXX\033[0m %-8s missing: %s\n" "$$c" "$$use"; fi; done
+	@printf "\nmacOS: brew install sbcl clisp figlet; pip install pycco\n"
+
+push: ## add+commit+push+status; msg from cli (make push my note) else prompts
+	@git add -A
+	@m="$(filter-out $@,$(MAKECMDGOALS))"; \
+	  [ -z "$$m" ] && { printf "commit msg (empty=save): "; read m </dev/tty; }; \
+	  git commit -m "$${m:-save}" || true
+	@git push
+	@git status
+%:            # swallow the message words so make won't error
+	@:
+
+# ---- repo lanes ---------------------------------------------
 
 tests: ## unit tests, sbcl only
 	@sbcl --script tiny-xai.lisp --all

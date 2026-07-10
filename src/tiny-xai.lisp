@@ -14,7 +14,7 @@
 
 (defvar *help* "
 tiny-xai: explainable multi-objective optimization, tiny-ly.
-(c) 2026 Tim Menzies <timm@ieee.org>, MIT license.
+(c) 2026 Tim Menzies <timm@ieee.org> (see LICENSE.md).
 
 Samples a data landscape under a small labelling budget,
 grows a regression tree over the labels, picks good rows,
@@ -34,7 +34,7 @@ Every TEST and STUDY runs by its flag (e.g. --all --tree).")
 ;;;  _>   |_  |   |_|  (_   |_  _>
 
 (defstruct (settings (:conc-name))
-  (--seed 1234567891) (--p 2) (--bins 7) (--depth 4)
+  (--seed 1234567891) (--p 2) (--depth 4)
   (--leaf 3) (--budget 50) (--cap 1024) (--check 5) (--grow 4)
   (--keepf 0.66) (--landscape "active")
   (--file  "../optimiz/auto93.csv"))
@@ -117,7 +117,7 @@ Every TEST and STUDY runs by its flag (e.g. --all --tree).")
 
 (defmethod mid ((i sym) &aux best (most (- +big+)))
   "Most common symbol"
-  (labels ((most (k v) (if (> v most) (setf most v best k))))
+  (labels ((most (k v) (when (> v most) (setf most v best k))))
     (maphash #'most $has)
     best))
 
@@ -152,7 +152,7 @@ Every TEST and STUDY runs by its flag (e.g. --all --tree).")
   "Sym summarizing i's data without j's"
   (setf (? k n) (- $n (? j n)))
   (maphash (lambda (x c &aux (c1 (- c (ats (? j has) x 0))))
-             (if (plusp c1) (setf (ats (? k has) x) c1)))
+             (when (plusp c1) (setf (ats (? k has) x) c1)))
            $has)
   k)
 
@@ -263,17 +263,25 @@ Every TEST and STUDY runs by its flag (e.g. --all --tree).")
 
 (defun active (pool cap x y &aux lab)
   "Label pool heads; cull pool's bad third; repeat"
-  (loop while (and (< (length lab) cap)
-                   (>= (length pool) (* 2 (? *my* --leaf))))
-        do
-    (dotimes (k (min (? *my* --grow) (- cap (length lab))))
-      (push (pop pool) lab))
-    (when (< (length lab) cap)
-      (setf pool
-            (nthcdr (max 1 (floor (* (- 1 (? *my* --keepf))
-                                     (length pool))))
-                    (sort pool #'< :key (project lab x y))))))
-  lab)
+  (labels ((known (r) (member r lab :test #'eq)))
+    (loop while (and (< (length lab) cap)
+                     (>= (length pool) (* 2 (? *my* --leaf))))
+          do
+      (let ((grown 0))
+        (dolist (r pool)
+          (when (and (< grown (? *my* --grow))
+                     (< (length lab) cap)
+                     (not (known r)))
+            (push r lab)
+            (incf grown))))
+      (when (< (length lab) cap)
+        (let ((here (remove-if-not #'known pool)))
+          (setf pool
+                (nthcdr (max 1 (floor (* (- 1 (? *my* --keepf))
+                                         (length pool))))
+                        (sort pool #'< :key
+                              (project here x y)))))))
+    lab))
 
 ;;; ## Cuts
 ;;;   _       _|_   _
