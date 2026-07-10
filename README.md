@@ -20,6 +20,19 @@ written in a tiny-function style. See `REPORT.md` for a study
 over 129 datasets: how good, how fast, and whether random
 labelling does just as well.
 
+# Documentation
+
+Annotated source, prose beside code (rebuilt by `make doc`;
+each page's 🏠 badge returns here):
+
+- [tiny-xai](https://aiez.github.io/tiny-xai/tiny-xai.html) -
+  the engine: columns, distances, landscape sampling, trees,
+  stats
+- [dtlz](https://aiez.github.io/tiny-xai/dtlz.html) - plug an
+  external model into the `*label*` hook (DTLZ1-7 demo)
+- [REPORT.md](https://github.com/aiez/tiny-xai/blob/main/REPORT.md) -
+  the RQ0-RQ2 study: how good, how fast, how simple
+
 # Usage
 
     git clone https://github.com/aiez/tiny-xai
