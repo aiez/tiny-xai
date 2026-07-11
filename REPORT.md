@@ -1,3 +1,5 @@
+<a href="https://timm.fyi"><img align="right" alt="Author" src="https://img.shields.io/badge/Author-timm-dc143c?logo=readme&logoColor=white"></a><img align="right" alt="Study" src="https://img.shields.io/badge/Study-Active%C2%B7Learning-7b68ee?logo=githubcopilot&logoColor=white"><img align="right" alt="Data" src="https://img.shields.io/badge/Data-129%C2%B7datasets-000080?logo=databricks&logoColor=white"><img align="right" alt="Result" src="https://img.shields.io/badge/Result-85%25%C2%B7gap%C2%B7closed%C2%B7with%C2%B750%C2%B7labels-32cd32?logo=checkmarx&logoColor=white"><img align="right" alt="Cost" src="https://img.shields.io/badge/Cost-~0.25%C2%B7CPU%C2%B7s%C2%B7per%C2%B7study-ff8c00?logo=speedtest&logoColor=white">
+
 # How much labelling does landscape optimization need?
 
 **tl;dr** How good? With ~50 labels the rig closes 85% of
