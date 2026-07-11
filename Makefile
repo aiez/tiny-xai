@@ -6,7 +6,7 @@ SHELL := /bin/bash
 DATA ?= ../optimiz # csv corpus (git clone github.com/aiez/optimiz)
 
 help: ## show this help
-	@cat banner.txt 2>/dev/null || true
+	@cat etc/banner.txt 2>/dev/null || true
 	@printf "\nUsage:\n  make <target> [VAR=val ...]\n\ntargets:\n"
 	@grep -hE '^[a-zA-Z][a-zA-Z0-9_ /.-]*:.*## ' $(MAKEFILE_LIST) | sort | \
 	  awk -F':.*## ' '{printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2}'
