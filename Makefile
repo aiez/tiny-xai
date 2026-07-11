@@ -1,5 +1,5 @@
 # vim: ts=2 sw=2 sts=2 et :
-# standalone; help/doctor/push adapted from aiez/konfig
+# standalone; help/doctor/push/pushs/pulls adapted from aiez/konfig
 SHELL := /bin/bash
 .DEFAULT_GOAL := help
 
@@ -34,6 +34,31 @@ push: ## add+commit+push+status; msg from cli (make push my note) else prompts
 	@git status
 %:            # swallow the message words so make won't error
 	@:
+
+# walk sibling gists, run shell fn `repo` (defined by caller) inside each
+eachgist = for d in $$(cd .. && ls -d */ 2>/dev/null); do d=$${d%/}; \
+	  [ -d "../$$d/.git" ] || continue; \
+	  printf "\n=== %s ===\n" "$$d"; \
+	  ( cd ../$$d && repo ); \
+	done
+
+pushs: ## commit+push every sibling gist; prompts only if dirty
+	@repo(){ \
+	  if [ -n "$$(git status --porcelain)" ]; then \
+	    printf "  msg (empty=skip): "; read m </dev/tty; \
+	    [ -z "$$m" ] && { echo "  skipped"; return 0; }; \
+	    git add -A && git commit -m "$$m" && git push; \
+	  elif [ "$$(git rev-list --count @{u}..HEAD 2>/dev/null || echo 0)" != "0" ]; then \
+	    git push; \
+	  else echo "  clean + synced"; fi; \
+	}; $(eachgist)
+
+pulls: ## git pull every sibling gist (skips dirty repos)
+	@repo(){ \
+	  if [ -n "$$(git status --porcelain)" ]; then \
+	    echo "  skipped: dirty (commit or stash first)"; \
+	  else git pull --ff-only; fi; \
+	}; $(eachgist)
 
 # ---- repo lanes ---------------------------------------------
 
