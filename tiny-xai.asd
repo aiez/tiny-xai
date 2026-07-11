@@ -13,3 +13,9 @@
                 :serial t
                 :components ((:file "tiny-xai"))))
   :in-order-to ((test-op (test-op "tiny-xai-test"))))
+
+(defsystem "tiny-xai/dtlz"
+  :description "DTLZ1-7 live-model driver for tiny-xai."
+  :depends-on ("tiny-xai")
+  :components ((:module "src"
+                :components ((:file "dtlz")))))

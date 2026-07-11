@@ -5,11 +5,14 @@
 ;;;; via the *label* hook. This is how an outside user plugs
 ;;;; their own (expensive) model into tiny-xai.
 ;;;;
-;;;;   sbcl --script dtlz.lisp                  # dtlz2
-;;;;   sbcl --script dtlz.lisp --model dtlz7
-;;;;   sbcl --script dtlz.lisp --model all --M 3 --N 8
+;;;;   sbcl --script src/dtlz.lisp              # dtlz2
+;;;;   sbcl --script src/dtlz.lisp --model dtlz7
+;;;;   sbcl --script src/dtlz.lisp --model all --M 3 --N 8
+;;;; Under ASDF, load the "tiny-xai/dtlz" system instead;
+;;;; the guard below skips the load and the eval-when never fires.
 
-(load (merge-pathnames "src/tiny-xai.lisp" *load-truename*))
+(unless (find-package :tiny-xai)
+  (load (merge-pathnames "tiny-xai.lisp" *load-truename*)))
 (in-package :tiny-xai)
 
 ;;; ## The models

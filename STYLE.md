@@ -70,7 +70,7 @@ portability gate. Code stays portable to both.
                         so ASDF loads stay pure
     src/tiny-xai.lisp   the engine (package :tiny-xai)
     t/tiny-xai.lisp     eg--* tests, study--* sweeps
-    dtlz.lisp           external-model demo (*label* hook)
+    src/dtlz.lisp       external-model demo (*label* hook)
     tiny-xai.asd        metadata; long-description reads
                         README.md at load time
     tiny-xai-test.asd   test-op runs eg--all
@@ -85,7 +85,7 @@ portability gate. Code stays portable to both.
 The website (`docs/*.html`) is GENERATED. Never edit it.
 `make doc` rebuilds it from these sources, in this order:
 
-1. **Docstrings** in src/, t/ and dtlz.lisp. Every defun,
+1. **Docstrings** in src/ and t/. Every defun,
    defmethod and defmacro has a one-line docstring,
    **first letter capitalized, no trailing period**. These are load-bearing
    three ways: (a) `etc/doc.awk` lifts each one above its

@@ -75,5 +75,5 @@ doc: docs/tiny-xai.html docs/dtlz.html ## pycco api docs
 docs/tiny-xai.html: src/tiny-xai.lisp etc/doc.awk etc/header.txt
 	$(_doc)
 
-docs/dtlz.html: dtlz.lisp etc/doc.awk etc/header.txt
+docs/dtlz.html: src/dtlz.lisp etc/doc.awk etc/header.txt
 	$(_doc)
